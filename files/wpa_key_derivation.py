@@ -43,20 +43,23 @@ wpa = rdpcap("wpa_handshake.cap")
 passPhrase  = "actuelle"
 A           = "Pairwise key expansion" #this string is used in the pseudo-random function
 ssid        = wpa[0].info
-APmac       = a2b_hex(wpa[5].addr2.replace(':', ''))
-Clientmac   = a2b_hex(wpa[5].addr1.replace(':', ''))
+APmac       = a2b_hex(wpa[5].addr2.replace(':', '')) # Get AP mac address from Source of the first packet of the 4-way handshake
+Clientmac   = a2b_hex(wpa[5].addr1.replace(':', '')) # Get STA mac address  from Source of the first packet of the 4-way handshake
 
 # Authenticator and Supplicant Nonces
-ANonce      = a2b_hex(b2a_hex(wpa[5].load)[26:90])
-SNonce      = a2b_hex(b2a_hex(wpa[6].load)[26:90])
+ANonce      = a2b_hex(b2a_hex(wpa[5].load)[26:90]) # getting nounce in the first packet of the 4-way handshake
+SNonce      = a2b_hex(b2a_hex(wpa[6].load)[26:90]) # getting nounce in the second packet of the 4-way handshake
 
 # This is the MIC contained in the 4th frame of the 4-way handshake
 # When attacking WPA, we would compare it to our own MIC calculated using passphrases from a dictionary
-mic_to_test = b2a_hex(wpa[8].load)[154:186]
+mic_to_test = b2a_hex(wpa[8].load)[154:186] # getting MIC from the last (4e) packet of the 4-way handshake
 
 B           = min(APmac, Clientmac)+max(APmac, Clientmac)+min(ANonce, SNonce)+max(ANonce, SNonce) #used in pseudo-random function
 
-data        = a2b_hex("0103005f02030a0000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000") #cf "Quelques détails importants" dans la donnée
+data        = a2b_hex("%02x" % wpa[8][5].version +     # add version in 1 Byte hex
+                             "%02x" % wpa[8][5].type + # add key type in 1 Byte hex
+                             "%04x" % wpa[8][5].len +  # Add len in 2 Byte hex
+                             b2a_hex(wpa[8][5].load[:77]).decode().ljust(190, '0')) # Add Key (description + information + len) + Replay counter + Key (Nounce + IV + RSC ID) + padding
 
 print("Values used to derivate keys")
 print("============================")
