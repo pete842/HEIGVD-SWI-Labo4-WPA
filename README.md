@@ -73,11 +73,13 @@ Modifier votre script de cracking pour qu’il soit capable de faire les mêmes 
 
 Un fork du repo original . Puis, un Pull Request contenant **vos noms** et :
 
-- Script ```wpa_key_derivation.py``` **modifié pour** la récupération automatique des paramètres à partir de la capture. **Les modifications doivent être commentées/documentées**
-   
-   ![](imgs/step1.png)
-- Script ```scaircrack.py``` **abondamment commenté/documenté** + fichier wordlist
+- Script ```wpa_key_derivation.py``` **modifié pour** la récupération automatique des paramètres à partir de la capture. **Les modifications doivent être commentées/documentées**   
+
+![](imgs/step1.png)
+- Script ```scaircrack.py``` **abondamment commenté/documenté** + fichier [wordlist (LINKED)](./files/wordlist)
    - Capture d’écran de votre script en action
+
+![](imgs/step2.png)
 -	**(Challenge optionnel)** Script ```scairodump.py``` **abondamment commenté/documenté** 
    - Capture d’écran de votre script en action
 -	Envoyer le hash du commit et votre username GitHub et **les noms des participants** par email au professeur et à l'assistant
